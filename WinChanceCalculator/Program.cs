@@ -41,13 +41,13 @@ namespace WinChanceCalculator
 
             }
 
-            firstMatrix.printMatrix();
+            firstMatrix.PrintMatrix();
             Console.WriteLine("First Matrix End!");
 
-            secondMatrix.printMatrix();
+            secondMatrix.PrintMatrix();
             Console.WriteLine("Second Matrix End!");
 
-            thirdMatrix.printMatrix();
+            thirdMatrix.PrintMatrix();
             Console.WriteLine("Third Matrix End!");
 
 

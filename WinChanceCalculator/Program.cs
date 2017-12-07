@@ -50,12 +50,6 @@ namespace WinChanceCalculator
             thirdMatrix.PrintMatrix();
             // Console.WriteLine("Third Matrix End!");
 
-            double[,] table1 = { { 4, -1, -0.2, 2 }, { -1, 5, 0, -2 }, { 0.2, 1, 10, -1 }, { 0, -2, -1, 4 } };
-            double[] bVector1 = { 30, 0, -10, 5 };
-            MyMatrix doubleMatrix1 = new MyMatrix(4, 4);
-            doubleMatrix1.ComplementMatrix(table1);
-            double[] xVector1 = doubleMatrix1.Jacobi(bVector1, 2);
-
             Console.ReadKey();
         }
 

@@ -58,8 +58,6 @@ namespace WinChanceCalculator
         public double[] GaussWithRowChoice(double[] bVector)
         {
             bVector = MakeRowEchelonMatrixWithRowChoice(bVector);
-            Console.WriteLine("Macierz po wyrowaniu");
-            this.PrintMatrix();
             double[] xVector = CountXVector(bVector);
             SetDefaultMatrix();
             return xVector;

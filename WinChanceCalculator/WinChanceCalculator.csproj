@@ -59,6 +59,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GaussOperations.cs" />
+    <Compile Include="JacobiOperations.cs" />
     <Compile Include="MatrixTests.cs" />
     <Compile Include="MyMatrix.cs" />
     <Compile Include="Program.cs" />

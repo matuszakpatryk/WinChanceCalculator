@@ -20,7 +20,7 @@ namespace WinChanceCalculator
             MyMatrix thirdMatrix = new MyMatrix(size, size);
             double[] firstVector = new double[size];
 
-
+            /*
             for (int j = 0; j < size; j++)
             {
                 for (int k = 0; k < size; k++)
@@ -40,16 +40,21 @@ namespace WinChanceCalculator
                 }
 
             }
-
+            */
             firstMatrix.PrintMatrix();
-            Console.WriteLine("First Matrix End!");
+           // Console.WriteLine("First Matrix End!");
 
             secondMatrix.PrintMatrix();
-            Console.WriteLine("Second Matrix End!");
+           // Console.WriteLine("Second Matrix End!");
 
             thirdMatrix.PrintMatrix();
-            Console.WriteLine("Third Matrix End!");
+            // Console.WriteLine("Third Matrix End!");
 
+            double[,] table1 = { { 4, -1, -0.2, 2 }, { -1, 5, 0, -2 }, { 0.2, 1, 10, -1 }, { 0, -2, -1, 4 } };
+            double[] bVector1 = { 30, 0, -10, 5 };
+            MyMatrix doubleMatrix1 = new MyMatrix(4, 4);
+            doubleMatrix1.ComplementMatrix(table1);
+            double[] xVector1 = doubleMatrix1.Jacobi(bVector1, 2);
 
             Console.ReadKey();
         }

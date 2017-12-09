@@ -41,14 +41,29 @@ namespace WinChanceCalculator
 
             }
             */
-            firstMatrix.PrintMatrix();
-           // Console.WriteLine("First Matrix End!");
+            // firstMatrix.PrintMatrix();
+            // Console.WriteLine("First Matrix End!");
 
-            secondMatrix.PrintMatrix();
-           // Console.WriteLine("Second Matrix End!");
+            // secondMatrix.PrintMatrix();
+            // Console.WriteLine("Second Matrix End!");
 
-            thirdMatrix.PrintMatrix();
+            //thirdMatrix.PrintMatrix();
             // Console.WriteLine("Third Matrix End!");
+
+            double[,] table =
+            {
+                {10.0, -1,2, 0},
+                {-1, 11.0, -1.0, 3},
+                {2.0, -1.0, 10.0, -1},
+                {0, 3, -1, 8 }
+            };
+            double[] vector = { 6, 25.0, -11.0, 15 };
+
+            MyMatrix test = new MyMatrix( 4,4);
+            test.ComplementMatrix(table);
+            vector = test.Seidel(vector, 5);
+            
+            MyMatrix.PrintVector(vector);
 
             Console.ReadKey();
         }

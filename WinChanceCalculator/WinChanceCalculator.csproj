@@ -60,11 +60,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GaussOperations.cs" />
+    <Compile Include="IterationMethodsOperations.cs" />
     <Compile Include="JacobiOperations.cs" />
     <Compile Include="MatrixTests.cs" />
     <Compile Include="MyMatrix.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeidelOperations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

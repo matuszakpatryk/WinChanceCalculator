@@ -142,10 +142,19 @@ namespace WinChanceCalculator
 
         public double[] Jacobi(double[] bVector, int numberOfIterations)
         {
-            double[] xVector = JacobiOperations.SetDefaultVector(numberOfColumns);
-            JacobiOperations.CountXVector(xVector, numberOfIterations, matrix, numberOfRows, numberOfColumns, bVector);
+            double[] xVector = IterationMethodsOperations.SetDefaultVector(numberOfColumns);
+            JacobiOperations.CountXVector(xVector, numberOfIterations, matrix,  bVector);
             return xVector;
         }
+
+        public double[] Seidel(double[] bVector, int numberOfIterations)
+        {
+            double[] xVector = IterationMethodsOperations.SetDefaultVector(numberOfColumns);
+            SeidelOperations.CountXVector(xVector, numberOfIterations, matrix, bVector);
+            return xVector;
+
+        }
+            
         
 
         //public void WriteMatrixToFile(string name)

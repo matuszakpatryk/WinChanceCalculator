@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace WinChanceCalculator
 {
     public class MyMatrix
     {
-        public int rows;
-        public int columns;
-        public double[,] matrix;
-        public double[,] defaultMatrix;
+        private int numberOfRows;
+        private int numberOfColumns;
+        private double[,] matrix;
+        private double[,] defaultMatrix;
 
         public MyMatrix(int rows, int columns)
         {
-            this.rows = rows;
-            this.columns = columns;
+            numberOfRows = rows;
+            numberOfColumns = columns;
             matrix = new double[rows, columns];
             defaultMatrix = new double[rows, columns];
         }
 
         ////////Implementation////////
 
-        public void complementMatrix(double[,] table)
+        public void ComplementMatrix(double[,] table)
         {
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < numberOfRows; i++)
             {
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < numberOfColumns; j++)
                 {
                     matrix[i, j] = table[i, j];
                     defaultMatrix[i, j] = table[i, j];
@@ -35,12 +38,12 @@ namespace WinChanceCalculator
             }
         }
 
-        public void printMatrix()
+        public void PrintMatrix()
         {
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < numberOfRows; i++)
             {
                 Console.Write("| ");
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < numberOfColumns; j++)
                 {
                     if (j != 0)
                     {
@@ -54,69 +57,31 @@ namespace WinChanceCalculator
             }
         }
 
-        public double[] gaussWithoutChoice(double[] bVector)
+        public double[] GaussWithRowChoice(double[] bVector)
         {
-            bVector = makeRowEchelonMatrix(bVector);
-            double[] xVector = countXVector(bVector);
-            setDefaultMatrix();
+            bVector = MakeRowEchelonMatrixWithRowChoice(bVector);
+            double[] xVector = GaussOperations.CountXVector(bVector, numberOfColumns, matrix);
+            SetDefaultMatrix();
             return xVector;
         }
 
-
-        public double[] gaussWithRowChoice(double[] bVector)
+        private double[] MakeRowEchelonMatrixWithRowChoice(double[] bVector)
         {
-            bVector = makeRowEchelonMatrixWithRowChoice(bVector);
-            double[] xVector = countXVector(bVector);
-            setDefaultMatrix();
-            return xVector;
-        }
-
-        public double[] gaussWithFullChoice(double[] bVector)
-        {
-            int[] xVectorNumberChangeTable = { 1, 2, 3, 4 };
-            bVector = makeRowEchelonMatrixWithFullChoice(bVector, xVectorNumberChangeTable);
-            double[] xVector = countModifiedXVector(bVector, xVectorNumberChangeTable);
-            setDefaultMatrix();
-            return xVector;
-        }
-
-        private double[] makeRowEchelonMatrix(double[] bVector)
-        {
-            for (int k = 0; k < columns; k++)
-            {
-                for (int i = k; i < rows - 1; i++)
-                {
-                    double numberForMultiply = (dynamic)matrix[i + 1, k] / matrix[k, k];
-
-                    for (int j = k; j < columns; j++)
-                    {
-                        matrix[i + 1, j] -= ((dynamic)matrix[k, j] * numberForMultiply);
-                    }
-
-                    bVector[i + 1] -= ((dynamic)bVector[k] * numberForMultiply);
-                }
-            }
-
-            return bVector;
-        }
-
-        private double[] makeRowEchelonMatrixWithRowChoice(double[] bVector)
-        {
-            for (int k = 0; k < columns; k++)
+            for (int k = 0; k < numberOfColumns; k++)
             {
                 int rowWithDiagonalNumber = k;
-                int rowNumberWithMaxNumberInColumn = findRowWithMaxNumberInColumnUnderDiagonal(k);
+                int rowNumberWithMaxNumberInColumn = FindRowWithMaxNumberInColumnUnderDiagonal(k);
 
                 if (rowNumberWithMaxNumberInColumn != rowWithDiagonalNumber)
                 {
-                    bVector = swapRows(rowWithDiagonalNumber, rowNumberWithMaxNumberInColumn, bVector);
+                    bVector = SwapRows(rowWithDiagonalNumber, rowNumberWithMaxNumberInColumn, bVector);
                 }
 
-                for (int i = k; i < rows - 1; i++)
+                for (int i = k; i < numberOfRows - 1; i++)
                 {
                     double numberForMultiply = (dynamic)matrix[i + 1, k] / matrix[k, k];
 
-                    for (int j = k; j < columns; j++)
+                    for (int j = k; j < numberOfColumns; j++)
                     {
                         matrix[i + 1, j] -= ((dynamic)matrix[k, j] * numberForMultiply);
                     }
@@ -128,48 +93,11 @@ namespace WinChanceCalculator
             return bVector;
         }
 
-
-        private double[] makeRowEchelonMatrixWithFullChoice(double[] bVector, int[] xVectorNumberChangeTable)
-        {
-            for (int k = 0; k < columns; k++)
-            {
-
-                int rowNumberWithDiagonalPoint = k;
-                int rowNumberWithMaxNumberInMatrix = rowNumberWithDiagonalPoint;
-                int columnNumberWithMaxNumberInMatrix = rowNumberWithDiagonalPoint;
-
-                findRowAndColumnWithMaxElementInMatrix(rowNumberWithDiagonalPoint, ref rowNumberWithMaxNumberInMatrix, ref columnNumberWithMaxNumberInMatrix);
-                if (rowNumberWithMaxNumberInMatrix != rowNumberWithDiagonalPoint)
-                {
-                    bVector = swapRows(rowNumberWithDiagonalPoint, rowNumberWithMaxNumberInMatrix, bVector);
-                }
-
-                if (columnNumberWithMaxNumberInMatrix != rowNumberWithDiagonalPoint)
-                {
-                    xVectorNumberChangeTable = swapColumns(rowNumberWithDiagonalPoint, columnNumberWithMaxNumberInMatrix, xVectorNumberChangeTable);
-                }
-
-                for (int i = k; i < rows - 1; i++)
-                {
-                    double numberForMultiply = (dynamic)matrix[i + 1, k] / matrix[k, k];
-
-                    for (int j = k; j < columns; j++)
-                    {
-                        matrix[i + 1, j] -= ((dynamic)matrix[k, j] * numberForMultiply);
-                    }
-
-                    bVector[i + 1] -= ((dynamic)bVector[k] * numberForMultiply);
-                }
-            }
-
-            return bVector;
-        }
-
-        private int findRowWithMaxNumberInColumnUnderDiagonal(int columnNumber)
+        private int FindRowWithMaxNumberInColumnUnderDiagonal(int columnNumber)
         {
             int rowNumberWithMaxNumberInColumn = columnNumber;
             int firstRowUnderDiagonal = columnNumber + 1;
-            for (int i = firstRowUnderDiagonal; i < rows; i++)
+            for (int i = firstRowUnderDiagonal; i < numberOfRows; i++)
             {
                 if ((dynamic)matrix[rowNumberWithMaxNumberInColumn, columnNumber] < matrix[i, columnNumber])
                 {
@@ -179,28 +107,11 @@ namespace WinChanceCalculator
             return rowNumberWithMaxNumberInColumn;
         }
 
-        private void findRowAndColumnWithMaxElementInMatrix(int rowNumberWithDiagonalPoint, ref int rowNumberWithMaxNumberInMatrix, ref int columnNumberWithMaxNumberInMatrix)
+        private double[] SwapRows(int rowWithDiagonalNumber, int rowNumberWithMaxNumber, double[] bVector)
         {
-            int columnNumberWithDiagonalPoint = rowNumberWithDiagonalPoint;
-
-            for (int i = rowNumberWithDiagonalPoint; i < rows; i++)
-            {
-                for (int j = columnNumberWithDiagonalPoint; j < columns; j++)
-                {
-                    if ((dynamic)matrix[rowNumberWithMaxNumberInMatrix, columnNumberWithMaxNumberInMatrix] < matrix[i, j])
-                    {
-                        rowNumberWithMaxNumberInMatrix = i;
-                        columnNumberWithMaxNumberInMatrix = j;
-                    }
-                }
-            }
-        }
-
-        private double[] swapRows(int rowWithDiagonalNumber, int rowNumberWithMaxNumber, double[] bVector)
-        {
-            double[] tempRow = new double[columns];
+            double[] tempRow = new double[numberOfColumns];
             double tempValue;
-            for (int i = 0; i < columns; i++)
+            for (int i = 0; i < numberOfColumns; i++)
             {
                 tempRow[i] = matrix[rowWithDiagonalNumber, i];
                 matrix[rowWithDiagonalNumber, i] = matrix[rowNumberWithMaxNumber, i];
@@ -213,73 +124,9 @@ namespace WinChanceCalculator
 
             return bVector;
         }
+        
 
-        private int[] swapColumns(int columnNumberWithDiagonalPoint, int columnNumberWithMaxNumber, int[] xVector)
-        {
-            double[] tempColumn = new double[rows];
-            int tempValue;
-            for (int i = 0; i < rows; i++)
-            {
-                tempColumn[i] = matrix[i, columnNumberWithDiagonalPoint];
-                matrix[i, columnNumberWithDiagonalPoint] = matrix[i, columnNumberWithMaxNumber];
-                matrix[i, columnNumberWithMaxNumber] = tempColumn[i];
-            }
-
-            tempValue = xVector[columnNumberWithDiagonalPoint];
-            xVector[columnNumberWithDiagonalPoint] = xVector[columnNumberWithMaxNumber];
-            xVector[columnNumberWithMaxNumber] = tempValue;
-
-            return xVector;
-        }
-
-        private double[] countXVector(double[] bVector)
-        {
-            double[] xVector = new double[bVector.Length];
-            for (int i = bVector.Length - 1; i >= 0; i--)
-            {
-                int j = i;
-                double numerator = bVector[i];
-                while (j < (columns - 1))
-                {
-                    numerator -= ((dynamic)matrix[i, j + 1] * xVector[j + 1]);
-                    j++;
-                }
-                xVector[i] = (dynamic)numerator / matrix[i, i];
-
-            }
-
-            return xVector;
-        }
-
-        private double[] countModifiedXVector(double[] bVector, int[] xVectorNumberChangeTable)
-        {
-            double[] xVector = new double[bVector.Length];
-            xVector = countXVector(bVector);
-
-            int indexTemp;
-            double valueTemp;
-
-            for (int i = 0; i < xVector.Length; i++)
-            {
-                if (xVectorNumberChangeTable[i] != i)
-                {
-                    int indexForReplacing = xVectorNumberChangeTable[i] - 1;
-
-                    indexTemp = xVectorNumberChangeTable[i];
-                    xVectorNumberChangeTable[i] = xVectorNumberChangeTable[indexForReplacing];
-                    xVectorNumberChangeTable[indexForReplacing] = indexTemp;
-
-                    valueTemp = xVector[i];
-                    xVector[i] = xVector[indexForReplacing];
-                    xVector[indexForReplacing] = valueTemp;
-                }
-            }
-
-
-            return xVector;
-        }
-
-        public void printVector(double[] vector)
+        public static void PrintVector(double[] vector)
         {
             Console.WriteLine("Wektor B");
             for (int i = 0; i < vector.Length; i++)
@@ -288,10 +135,27 @@ namespace WinChanceCalculator
             }
         }
 
-        public void setDefaultMatrix()
+        public void SetDefaultMatrix()
         {
             matrix = (double[,])defaultMatrix.Clone();
         }
+
+        public double[] Jacobi(double[] bVector, int numberOfIterations)
+        {
+            double[] xVector = IterationMethodsOperations.SetDefaultVector(numberOfColumns);
+            JacobiOperations.CountXVector(xVector, numberOfIterations, matrix,  bVector);
+            return xVector;
+        }
+
+        public double[] Seidel(double[] bVector, int numberOfIterations)
+        {
+            double[] xVector = IterationMethodsOperations.SetDefaultVector(numberOfColumns);
+            SeidelOperations.CountXVector(xVector, numberOfIterations, matrix, bVector);
+            return xVector;
+
+        }
+            
+        
 
         //public void WriteMatrixToFile(string name)
         //{

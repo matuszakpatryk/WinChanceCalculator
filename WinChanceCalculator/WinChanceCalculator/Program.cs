@@ -8,8 +8,7 @@ namespace WinChanceCalculator
 {
     class Program
     {
-        public static int size;
-        public static int k,s1,s2;
+        public static int size = 10;
 
         static void Main(string[] args)
         {
@@ -21,7 +20,7 @@ namespace WinChanceCalculator
             MyMatrix thirdMatrix = new MyMatrix(size, size);
             double[] firstVector = new double[size];
 
-
+            /*
             for (int j = 0; j < size; j++)
             {
                 for (int k = 0; k < size; k++)
@@ -41,16 +40,30 @@ namespace WinChanceCalculator
                 }
 
             }
+            */
+            // firstMatrix.PrintMatrix();
+            // Console.WriteLine("First Matrix End!");
 
-            firstMatrix.printMatrix();
-            Console.WriteLine("First Matrix End!");
+            // secondMatrix.PrintMatrix();
+            // Console.WriteLine("Second Matrix End!");
 
-            secondMatrix.printMatrix();
-            Console.WriteLine("Second Matrix End!");
+            //thirdMatrix.PrintMatrix();
+            // Console.WriteLine("Third Matrix End!");
 
-            thirdMatrix.printMatrix();
-            Console.WriteLine("Third Matrix End!");
+            double[,] table =
+            {
+                {10.0, -1,2, 0},
+                {-1, 11.0, -1.0, 3},
+                {2.0, -1.0, 10.0, -1},
+                {0, 3, -1, 8 }
+            };
+            double[] vector = { 6, 25.0, -11.0, 15 };
 
+            MyMatrix test = new MyMatrix( 4,4);
+            test.ComplementMatrix(table);
+            vector = test.Seidel(vector, 5);
+            
+            MyMatrix.PrintVector(vector);
 
             Console.ReadKey();
         }

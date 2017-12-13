@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +11,7 @@ namespace WinChanceCalculator
     class Program
     {
         public static int size = 10;
-
+        public static int N = 2;
         static void Main(string[] args)
         {
 
@@ -50,22 +52,109 @@ namespace WinChanceCalculator
             //thirdMatrix.PrintMatrix();
             // Console.WriteLine("Third Matrix End!");
 
-            double[,] table =
-            {
-                {10.0, -1,2, 0},
-                {-1, 11.0, -1.0, 3},
-                {2.0, -1.0, 10.0, -1},
-                {0, 3, -1, 8 }
-            };
-            double[] vector = { 6, 25.0, -11.0, 15 };
-
-            MyMatrix test = new MyMatrix( 4,4);
-            test.ComplementMatrix(table);
-            vector = test.Seidel(vector, 5);
             
-            MyMatrix.PrintVector(vector);
+            int M = (2 * N + 1);
+            int numbersOfColumns = (M * M - (M - 1) - (M - 1) - 1)*2;
+            double[,] table = new double[numbersOfColumns, numbersOfColumns];
+            Stan[] tableOfStans = new Stan[numbersOfColumns];
+            
+            int i = 0;
 
+            for (int j = N; j >= -N; j--)
+            {
+                for (int k = -N; k <= N; k++)
+                {
+                    if (!((j == k) || (j == 0) ||(k ==0)))
+                    {
+                        tableOfStans[i] = new Stan(j, k, 1, true);
+                        i++;
+                        tableOfStans[i] = new Stan(j, k, 2, true);
+                        i++;
+                    }
+                   
+                }
+            }
+
+            for (int j = N; j >= -N; j--)
+            {
+                if (j != 0)
+                {
+                    tableOfStans[i] = new Stan(j,j,1, true);
+                    i++;
+                    tableOfStans[i] = new Stan(j, j, 2, true);
+                    i++;
+                }
+            }
+            
+
+            double[,] tableForMatrix = new double[numbersOfColumns,numbersOfColumns];
+            double[] bVector = new double[numbersOfColumns];
+            for (int j = 0; j < numbersOfColumns; j++)
+            {
+                for (int k = 0; k < numbersOfColumns; k++)
+                {
+                    tableForMatrix[j, k] = 0;
+                }
+                bVector[j] = 0;
+            }
+            
+
+            for (i = 0; i < numbersOfColumns; i++)
+            {
+                for (int j = 0; j < Stan.numberOfCubeWalls; j++)
+                {
+                    if (tableOfStans[i].usedItems[j].IsGameFinished())
+                    {
+                        if (tableOfStans[i].usedItems[j].WhoWin() == 1)
+                        {
+                            bVector[i] = 1 / 7;
+                        }
+                        else
+                        {
+                            bVector[i] = 0;
+                        }
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("I = {0}, J = {1}", i, j);
+                        tableForMatrix[i, indexOfStanInElements(tableOfStans, numbersOfColumns, tableOfStans[i].usedItems[j])] = -1 / 7;
+                        Console.WriteLine("I = {0}, J = {1}", i, j);
+                    }
+                }
+            }
+
+            MyMatrix matrix = new MyMatrix(numbersOfColumns, numbersOfColumns);
+            matrix.ComplementMatrix(tableForMatrix);
+            //matrix.PrintMatrix();
+
+            MyMatrix.PrintVector(bVector);
+           
+           /*
+            for (int j = 0; j < numbersOfColumns; j++)
+            {
+                Console.WriteLine("Numer : {3} Stan P{0}({1},{2})",tableOfStans[j].playerMove, tableOfStans[j].firstPlayerField, tableOfStans[j].secondPlayerField, j+1);
+            }
+            */
+            
+           
             Console.ReadKey();
+        }
+
+        public static int indexOfStanInElements(Stan[] tableOfStans, int numberOfColumn, Stan stan)
+        {
+            for(int i = 0; i < numberOfColumn; i++)
+            {
+                if (tableOfStans[i].firstPlayerField == stan.firstPlayerField &&
+                    tableOfStans[i].secondPlayerField == stan.secondPlayerField &&
+                    tableOfStans[i].playerMove == stan.playerMove)
+                {
+                    Console.WriteLine("Rzucam {0}", i);
+                    return i;
+                }
+            }
+            Console.WriteLine("return -1000");
+            return -10000;
         }
 
 

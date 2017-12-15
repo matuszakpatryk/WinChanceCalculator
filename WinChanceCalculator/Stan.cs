@@ -12,7 +12,7 @@ namespace WinChanceCalculator
         public int secondPlayerField { get; set; }
         public int playerMove { get; set; }
         public Stan[] usedItems { get; set; }
-
+        public static double[,] cubeValues { get; set; }
         public static int numberOfCubeWalls = 3;
 
         public Stan(int firstPlayerField, int secondPlayerField, int playerMove, bool flag)
@@ -21,6 +21,7 @@ namespace WinChanceCalculator
             this.secondPlayerField = secondPlayerField;
             this.playerMove = playerMove;
             usedItems = new Stan[numberOfCubeWalls];
+            cubeValues = new double[,] { { -1, 0.55 }, { 0, 0.35 }, { 1, 0.10 } };
             if (flag == true)
             {
                 SetUsedItemTable();
@@ -31,33 +32,40 @@ namespace WinChanceCalculator
         public void SetUsedItemTable()
         {
             int i = 0;
-                for (int j = -(int)(numberOfCubeWalls / 2); j <= (int)(numberOfCubeWalls / 2); j++, i++)
+            for (int j = 0; j < (int)(cubeValues.Length / 2); j++, i++)
+            {
+                int whichFieldForPlayer;
+                if (playerMove == 1)
                 {
-                    int whichFieldForPlayer = firstPlayerField;
-                    if (whichFieldForPlayer + j < -Program.N)
-                    {
-                        whichFieldForPlayer = Program.N - ((-(whichFieldForPlayer + j) - Program.N) - 1);
-                    }
-                    else if (whichFieldForPlayer + j > Program.N)
-                    {
-                        whichFieldForPlayer = -Program.N + (((whichFieldForPlayer + j) - Program.N) - 1);
-                    }
-                    else
-                    {
-                        whichFieldForPlayer += j;
-                    }
-
-
-                    if (playerMove == 1)
-                    {
-                        usedItems[i] = new Stan(whichFieldForPlayer, secondPlayerField, 2,false);
-                    }
-                    else
-                    {
-                        usedItems[i] = new Stan(firstPlayerField, whichFieldForPlayer, 1, false);
-                    }
-
+                    whichFieldForPlayer = firstPlayerField;
                 }
+                else
+                {
+                    whichFieldForPlayer = secondPlayerField;
+                }
+
+                if (whichFieldForPlayer + cubeValues[j, 0] < -Program.N)
+                {
+                    whichFieldForPlayer = Program.N - ((-(whichFieldForPlayer + (int)cubeValues[j, 0]) - Program.N) - 1);
+                }
+                else if (whichFieldForPlayer + cubeValues[j, 0] > Program.N)
+                {
+                    whichFieldForPlayer = -Program.N + (((whichFieldForPlayer + (int)cubeValues[j, 0]) - Program.N) - 1);
+                }
+                else
+                {
+                    whichFieldForPlayer += (int)cubeValues[j, 0];
+                }
+
+                if (playerMove == 1)
+                {
+                    usedItems[i] = new Stan(whichFieldForPlayer, secondPlayerField, 2, false);
+                }
+                else
+                {
+                    usedItems[i] = new Stan(firstPlayerField, whichFieldForPlayer, 1, false);
+                }
+            }
         }
 
         public bool IsGameFinished()

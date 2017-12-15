@@ -10,7 +10,7 @@ namespace WinChanceCalculator
         static void Main(string[] args)
         {
             double[] result = new double[3];
-            double[,] cubeValues = new double[,] { { -1, 1/3 }, { 0, 1/3 }, { 1, 1/3 } };
+            double[,] cubeValues = new double[,] { { -1, 1.0/3 }, { 0, 1.0/3 }, { 1, 1.0/3 } };
             double gaussSum = 0, jacobiSum = 0, seidelSum = 0;
             result = ComputeAll();
             gaussSum += result[0];
@@ -22,13 +22,13 @@ namespace WinChanceCalculator
             Console.WriteLine("Seidel result: {0}", seidelSum);
 
             double firstPlayerWins = 0, secondPlayerWins = 0;
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 Random rand = new Random();
                 int x = rand.Next(3) - 1;
-                Console.WriteLine("x={0}", x);
+                //Console.WriteLine("x={0}", x);
                 int game = GameSymulation(2, -2, 3, cubeValues);
-                Console.WriteLine("Game {0}: game={1}", i, game);
+                //Console.WriteLine("Game {0}: game={1}", i, game);
                 if (game == 1)
                 {
                     firstPlayerWins++;
@@ -39,7 +39,7 @@ namespace WinChanceCalculator
                 }
             }
 
-            Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", firstPlayerWins / 100);
+            Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", firstPlayerWins / 1000000);
 
 
             Console.ReadKey();
@@ -52,14 +52,14 @@ namespace WinChanceCalculator
             while (true)
             {
                 int cube = MyRandom(cubeValues);
-                Console.WriteLine("Pole 1: {0}, rzut: {1}", firstPlayerField, cube);
+                //Console.WriteLine("Pole 1: {0}, rzut: {1}", firstPlayerField, cube);
                 firstPlayerField = WhichFieldForPlayer(firstPlayerField, cube);
                 if (firstPlayerField == 0)
                 {
                     return 1;
                 }
                 cube = MyRandom(cubeValues);
-                Console.WriteLine("Pole 2: {0}, rzut: {1}", secondPlayerField, cube);
+                //Console.WriteLine("Pole 2: {0}, rzut: {1}", secondPlayerField, cube);
                 secondPlayerField = WhichFieldForPlayer(secondPlayerField, cube);
                 if (secondPlayerField == 0)
                 {
@@ -89,15 +89,14 @@ namespace WinChanceCalculator
 
         public static int MyRandom (double[,] cubeValues)
         {
-            Random rand = new Random();
-            int x = rand.Next(3) - 1;
-            //Console.WriteLine("X = {0}", x);
+            Random rand = new Random(System.DateTime.Now.Millisecond);
+            int x = rand.Next(3) -1;
             return x;
-            //if ( (x >= 0) && (x <= cubeValues[0, 1]*100) )
+            //if ((x >= 0) && (x <= cubeValues[0, 1] * 100))
             //{
             //    return (int)cubeValues[0, 0];
             //}
-            //else if ( (x > cubeValues[0, 1] * 100) && (x <= cubeValues[1, 1] * 100) )
+            //else if ((x > cubeValues[0, 1] * 100) && (x <= cubeValues[1, 1] * 100))
             //{
             //    return (int)cubeValues[1, 0];
             //}
@@ -105,18 +104,18 @@ namespace WinChanceCalculator
             //{
             //    return (int)cubeValues[2, 0];
             //}
-        //    if (x == 0)
-        //    {
-        //        return -1;
-        //    }
-        //    else if ( x == 1 )
-        //    {
-        //        return 0;
-        //    }
-        //    else
-        //    {
-        //        return 1;
-        //    }
+            //    if (x == 0)
+            //    {
+            //        return -1;
+            //    }
+            //    else if ( x == 1 )
+            //    {
+            //        return 0;
+            //    }
+            //    else
+            //    {
+            //        return 1;
+            //    }
         }
 
         public static double[] ComputeAll()

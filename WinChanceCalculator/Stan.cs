@@ -21,7 +21,7 @@ namespace WinChanceCalculator
             this.secondPlayerField = secondPlayerField;
             this.playerMove = playerMove;
             usedItems = new Stan[numberOfCubeWalls];
-            cubeValues = new double[,] { { -1, 0.55 }, { 0, 0.35 }, { 1, 0.10 } };
+            cubeValues = new double[,] { { -1, 1.0/3 }, { 0, 1.0/3 }, { 1, 1.0/3 } };
             if (flag == true)
             {
                 SetUsedItemTable();

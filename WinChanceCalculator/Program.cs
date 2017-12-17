@@ -5,8 +5,8 @@ namespace WinChanceCalculator
 {
     class Program
     {
-        public static int size = 100000;
-        public static int N = 10;
+        public static int size = 1000000;
+        public static int N = 5;
         public static double gaussTime, jacobiTime, seidelTime, symulationTime;
 
         static void Main(string[] args)
@@ -15,9 +15,9 @@ namespace WinChanceCalculator
             CleanFiles();
             double[] result = new double[3];
             //double[,] cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };    
-            //double[,] cubeValues = new double[,] { { -3, 1.0 / 7 }, { -2, 1.0 / 7 }, { -1, 1.0 / 7 }, { 0, 1.0 / 7 }, { 1, 1.0 / 7 }, { 2, 1.0 / 7 }, { 3, 1.0 / 7 } };
+            double[,] cubeValues = new double[,] { { -3, 1.0 / 7 }, { -2, 1.0 / 7 }, { -1, 1.0 / 7 }, { 0, 1.0 / 7 }, { 1, 1.0 / 7 }, { 2, 1.0 / 7 }, { 3, 1.0 / 7 } };
             //double[,] cubeValues = new double[,] { { -1, 1.0 / 3 }, { 0, 1.0 / 3 }, { 1, 1.0 / 3 } };
-            double[,] cubeValues = new double[,] { { -2, 2.0 / 5 }, { 0, 1.0 / 5 }, { 1, 1.0 / 5 }, { 3, 1.0 / 5 } };
+            //double[,] cubeValues = new double[,] { { -2, 2.0 / 5 }, { 0, 1.0 / 5 }, { 1, 1.0 / 5 }, { 3, 1.0 / 5 } };
             double gaussSum = 0, jacobiSum = 0, seidelSum = 0;
             result = ComputeAll();
             gaussSum += result[0]; 
@@ -301,16 +301,16 @@ namespace WinChanceCalculator
 
         public static void CleanFiles()
         {
-            System.IO.File.WriteAllText(@"C:\Users\Marek\Desktop\Data\DataRange.txt", "");
+            System.IO.File.WriteAllText(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", "");
         }
 
         public static void WriteVectorToFile(double[] vector)
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\DataRange.txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
             {
                 for (int i = 0; i < vector.Length; i++)
                 {
-                    file.WriteLine(String.Format("{0:N3}", vector[i]));
+                    file.WriteLine(String.Format("{0:N16}", vector[i]));
                 }
                 file.Write("*** *** *** *** *** ***\n");
             }           
@@ -318,7 +318,7 @@ namespace WinChanceCalculator
 
         public static void WriteDataToFile(string name, double gauss, double jacobi, double seidel, double gaussTime, double jacobiTime, double seidelTime, double symulation, double symulationSpan)
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\"+name+".txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\" + name+".txt", true))
             {
                 file.WriteLine("Data for N={0}, CubeSize={1} symetrical", N, 7);
                 file.WriteLine("Gauss Result: {0}", gauss);

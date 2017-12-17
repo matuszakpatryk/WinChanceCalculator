@@ -58,7 +58,6 @@ void ReadDataDoubleFromFile(int size)
 {
 	using namespace boost::algorithm;
 	using Eigen::SparseLU;
-	cout << "Size" << size << endl;
 	MatrixXd firstDoubleMatrix(size,size);
 	VectorXd firstDoubleVector(size);
 	int k = 0;
@@ -103,10 +102,7 @@ void ReadDataDoubleFromFile(int size)
 	
 	SparseMatrix<double> sparseMatrix = CopyMatrixToSparse(firstDoubleMatrix, size);
 	SparseLU<SparseMatrix<double>> solver;
-	
-	cout << "First Matrix" << endl << setprecision(3) << fixed << firstDoubleMatrix << endl;
-	cout << "First Vector" << endl << setprecision(3) << fixed << firstDoubleVector << endl;
-	
+		
 	auto start = std::chrono::high_resolution_clock::now();
 	MatrixXd partialResult = firstDoubleMatrix.partialPivLu().solve(firstDoubleVector);
 	auto finish = std::chrono::high_resolution_clock::now();
@@ -118,16 +114,11 @@ void ReadDataDoubleFromFile(int size)
 	finish = std::chrono::high_resolution_clock::now();
 	double sparseLuTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
 	
-	
 	pivLuTime /= 1000000;
 	sparseLuTime /= 1000000;
-	
-	
-	cout << "partialResult" << endl << setprecision(3) << fixed << partialResult(0) << endl << "Time" << pivLuTime << endl;
-	cout << "sparseLu" << endl << setprecision(3) << fixed << sparseLu(0) << endl << "Time" << sparseLuTime << endl;
-	
+		
 	std::ofstream outfile;
-	outfile.open("C:\\Users\\Patryk\\Desktop\\Data\\Result5C].txt", std::ios_base::app);
+	outfile.open("C:\\Users\\Patryk\\Desktop\\Data\\Result5[C].txt", std::ios_base::app);
 	outfile << "PartialPivLu: " << setprecision(16) << fixed << partialResult(0) << endl << "PartialPivLu Time: " << pivLuTime << endl;
 	outfile << "\n";
 	outfile << "SparseLu: " << setprecision(16) << fixed << sparseLu(0) << endl << "SparseLu Time: " << pivLuTime << endl;

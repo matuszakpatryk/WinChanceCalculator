@@ -160,20 +160,20 @@ namespace WinChanceCalculator
         public void WriteMatrixToFile()
         {
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\DataRange.txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
             {
                 for (int i = 0; i < numberOfRows; i++)
                 {
                     for (int j = 0; j < numberOfColumns; j++)
                     {
-                        file.Write(String.Format("{0:N3}", matrix[i, j]));
+                        file.Write(String.Format("{0:N16}", matrix[i, j]));
                         file.Write(" ");
                     }
 
                     file.Write("\n");
                 }              
             }           
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\DataRange.txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
             {
                 file.Write("*** *** *** *** *** ***\n");
             }                 

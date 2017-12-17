@@ -143,7 +143,7 @@ namespace WinChanceCalculator
         public double[] Jacobi(double[] bVector, int numberOfIterations)
         {
             double[] xVector = IterationMethodsOperations.SetDefaultVector(numberOfColumns);
-            JacobiOperations.CountXVector(xVector, numberOfIterations, matrix,  bVector);
+            JacobiOperations.CountXVector(xVector, matrix,  bVector);
             return xVector;
         }
 
@@ -160,7 +160,7 @@ namespace WinChanceCalculator
         public void WriteMatrixToFile()
         {
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\DataRange.txt", true))
             {
                 for (int i = 0; i < numberOfRows; i++)
                 {
@@ -173,10 +173,12 @@ namespace WinChanceCalculator
                     file.Write("\n");
                 }              
             }           
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Marek\Desktop\Data\DataRange.txt", true))
             {
                 file.Write("*** *** *** *** *** ***\n");
             }                 
         }
+
+    
     }
 }

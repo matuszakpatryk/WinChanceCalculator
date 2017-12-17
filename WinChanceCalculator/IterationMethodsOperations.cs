@@ -45,5 +45,21 @@ namespace WinChanceCalculator
             return resultOfActionsForGivenRowOfXVector;
 
         }
+
+
+        public static bool CheckIsVectorSameAfterNextIteration(double[] lastVector, double[] vector)
+        {
+            bool isSame = true;
+            for (int i = 0; i < vector.Length; i++)
+            {
+                if (lastVector[i] != vector[i])
+                {
+                    isSame = false;
+                }
+            }
+
+            return isSame;
+        }
+
     }
 }

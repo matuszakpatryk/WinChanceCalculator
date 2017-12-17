@@ -10,14 +10,19 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using Eigen::SparseMatrix;
+using Eigen::SparseLU;
+
 using namespace std;
 
 /* Function Prototypes */
 void CleanFiles();
 int CountSize();
+SparseMatrix<double> CopyMatrixToSparse(MatrixXd matrix, int size);
 void ReadDataDoubleFromFile(int size);
 /* End of prototypes */
 
@@ -40,7 +45,7 @@ void CleanFiles()
 int CountSize()
 {
 	using namespace boost::algorithm;
-	ifstream input("C:\\Users\\pmatusza\\Documents\\MobaXterm\\home\\Studia\\Algorytmy\\Zad3\\Data\\Data\\DataRangeDouble.txt");
+	ifstream input("C:\\Users\\Patryk\\Desktop\\Data\\DataRange.txt");
 	vector<string> tokens;	
 	string line;
 	getline(input, line);
@@ -52,14 +57,13 @@ int CountSize()
 void ReadDataDoubleFromFile(int size)
 {
 	using namespace boost::algorithm;
+	using Eigen::SparseLU;
 	cout << "Size" << size << endl;
 	MatrixXd firstDoubleMatrix(size,size);
-	MatrixXd secondDoubleMatrix(size,size);
-	MatrixXd thirdDoubleMatrix(size,size);
 	VectorXd firstDoubleVector(size);
 	int k = 0;
 	int flag = 0;
-	ifstream input("C:\\Users\\pmatusza\\Documents\\MobaXterm\\home\\Studia\\Algorytmy\\Zad3\\Data\\Data\\DataRangeDouble.txt");
+	ifstream input("C:\\Users\\Patryk\\Desktop\\Data\\DataRange.txt");
 	for( std::string line; getline( input, line ); )
 	{	
 		int j = 0;
@@ -86,18 +90,10 @@ void ReadDataDoubleFromFile(int size)
 					{						
 						firstDoubleMatrix(k,j) = temporary;
 					} 
-					else if (flag==1)
+					else 
 					{
-						secondDoubleMatrix(k-size,j) = temporary;
-					} 
-					else if (flag==2)
-					{
-						thirdDoubleMatrix(k-(size*2),j) = temporary;
-					}
-					else
-					{
-						firstDoubleVector(k-(size*3)) = temporary;
-					}				
+						firstDoubleVector(k-size) = temporary;
+					} 			
 				}
 				j++;
 			}			
@@ -105,10 +101,53 @@ void ReadDataDoubleFromFile(int size)
 		k++;		
 	}
 	
+	SparseMatrix<double> sparseMatrix = CopyMatrixToSparse(firstDoubleMatrix, size);
+	SparseLU<SparseMatrix<double>> solver;
+	
 	cout << "First Matrix" << endl << setprecision(3) << fixed << firstDoubleMatrix << endl;
-	cout << "Second Matrix" << endl << setprecision(3) << fixed << secondDoubleMatrix << endl;
-	cout << "Third  Matrix" << endl << setprecision(3) << fixed << thirdDoubleMatrix << endl;
 	cout << "First Vector" << endl << setprecision(3) << fixed << firstDoubleVector << endl;
+	
+	auto start = std::chrono::high_resolution_clock::now();
+	MatrixXd partialResult = firstDoubleMatrix.partialPivLu().solve(firstDoubleVector);
+	auto finish = std::chrono::high_resolution_clock::now();
+	double pivLuTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
+
+	solver.compute(sparseMatrix);	
+	start = std::chrono::high_resolution_clock::now();
+	VectorXd sparseLu = solver.solve(firstDoubleVector);
+	finish = std::chrono::high_resolution_clock::now();
+	double sparseLuTime = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
+	
+	
+	pivLuTime /= 1000000;
+	sparseLuTime /= 1000000;
+	
+	
+	cout << "partialResult" << endl << setprecision(3) << fixed << partialResult(0) << endl << "Time" << pivLuTime << endl;
+	cout << "sparseLu" << endl << setprecision(3) << fixed << sparseLu(0) << endl << "Time" << sparseLuTime << endl;
+	
+	std::ofstream outfile;
+	outfile.open("C:\\Users\\Patryk\\Desktop\\Data\\Result5C].txt", std::ios_base::app);
+	outfile << "PartialPivLu: " << setprecision(16) << fixed << partialResult(0) << endl << "PartialPivLu Time: " << pivLuTime << endl;
+	outfile << "\n";
+	outfile << "SparseLu: " << setprecision(16) << fixed << sparseLu(0) << endl << "SparseLu Time: " << pivLuTime << endl;
+	outfile << "\n";
+	outfile << "*** **** *** *** *** ***\n";
+	outfile.close();
+	
+}
+
+SparseMatrix<double> CopyMatrixToSparse(MatrixXd matrix, int size) 
+{
+	SparseMatrix<double> smatrix(size, size);
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			smatrix.insert(i, j) = matrix(i, j);
+		}
+	}
+	return smatrix;
 }
 
 namespace patch

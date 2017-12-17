@@ -1,22 +1,26 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace WinChanceCalculator
 {
     class Program
     {
-        public static int size = 10;
+        public static int size = 100000;
         public static int N = 10;
-        public static TimeSpan gaussTime, jacobiTime, seidelTime, symulationTime;
+        public static double gaussTime, jacobiTime, seidelTime, symulationTime;
 
         static void Main(string[] args)
         {
+            Random rand = new Random();
             CleanFiles();
             double[] result = new double[3];
-            double[,] cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };    
+            //double[,] cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };    
+            //double[,] cubeValues = new double[,] { { -3, 1.0 / 7 }, { -2, 1.0 / 7 }, { -1, 1.0 / 7 }, { 0, 1.0 / 7 }, { 1, 1.0 / 7 }, { 2, 1.0 / 7 }, { 3, 1.0 / 7 } };
             //double[,] cubeValues = new double[,] { { -1, 1.0 / 3 }, { 0, 1.0 / 3 }, { 1, 1.0 / 3 } };
+            double[,] cubeValues = new double[,] { { -2, 2.0 / 5 }, { 0, 1.0 / 5 }, { 1, 1.0 / 5 }, { 3, 1.0 / 5 } };
             double gaussSum = 0, jacobiSum = 0, seidelSum = 0;
             result = ComputeAll();
-            gaussSum += result[0];
+            gaussSum += result[0]; 
             jacobiSum += result[1];
             seidelSum += result[2];
             Console.WriteLine("Wyniki dla N={0}, Kostki o {1} scianach", N, Stan.cubeValues.Length / 2);
@@ -31,13 +35,14 @@ namespace WinChanceCalculator
             Console.WriteLine("Seidel Time: {0}", seidelTime);
             Console.WriteLine("");
 
-            double firstPlayerWins = 0, secondPlayerWins = 0;
-            DateTime startTime = DateTime.Now;
-            for (int i = 0; i < 1000000; i++)
+            int firstPlayerWins = 0, secondPlayerWins = 0;
+            var stopwatch = new Stopwatch();
+            stopwatch.Reset();
+            stopwatch.Start();
+            for (int i = 0; i < size; i++)
             {
-                Random rand = new Random();
-                int x = rand.Next(3) - 1;
-                int game = GameSymulation(2, -2, 3, cubeValues);
+                int game = GameSymulation(N, -N, cubeValues.Length/2, cubeValues,rand);
+                Console.WriteLine("I: {0} game:{1}",i+1,game);
                 if (game == 1)
                 {
                     firstPlayerWins++;
@@ -47,30 +52,30 @@ namespace WinChanceCalculator
                     secondPlayerWins++;
                 }
             }
-            DateTime stopTime = DateTime.Now;
-            symulationTime = stopTime - startTime;
-            Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", firstPlayerWins / 1000000);
+            stopwatch.Stop();
+            symulationTime = stopwatch.Elapsed.TotalMilliseconds;
+            Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", (double)firstPlayerWins / size);
             Console.WriteLine("Symulation Time: {0}", symulationTime);
 
+
+            WriteDataToFile("Result"+N, gaussSum, jacobiSum, seidelSum, gaussTime, jacobiTime, seidelTime, (double)firstPlayerWins / size, symulationTime);
 
             Console.ReadKey();
         }
 
-        public static int GameSymulation(int firstPlayerStartField, int secondPlayerStartField, int cubeSize, double[,] cubeValues)
+        public static int GameSymulation(int firstPlayerStartField, int secondPlayerStartField, int cubeSize, double[,] cubeValues, Random rand)
         {
             int firstPlayerField = firstPlayerStartField;
             int secondPlayerField = secondPlayerStartField;
             while (true)
             {
-                int cube = MyRandom(cubeValues);
-                //Console.WriteLine("Pole 1: {0}, rzut: {1}", firstPlayerField, cube);
+                int cube = MyRandom(cubeValues, rand);
                 firstPlayerField = WhichFieldForPlayer(firstPlayerField, cube);
                 if (firstPlayerField == 0)
                 {
                     return 1;
                 }
-                cube = MyRandom(cubeValues);
-                //Console.WriteLine("Pole 2: {0}, rzut: {1}", secondPlayerField, cube);
+                cube = MyRandom(cubeValues, rand);
                 secondPlayerField = WhichFieldForPlayer(secondPlayerField, cube);
                 if (secondPlayerField == 0)
                 {
@@ -98,13 +103,12 @@ namespace WinChanceCalculator
             return whichFieldForPlayer;
         }
 
-        public static int MyRandom (double[,] cubeValues)
+        public static int MyRandom (double[,] cubeValues, Random rand)
         {
             int[] test = new int[100];
             int iterator = 0;
-            int secondIterator = 0;
             for (int i = 0; i < cubeValues.Length / 2; i++)
-            {
+            {               
                 if (i != (cubeValues.Length / 2) - 1)
                 {
                     int temp = (int)(cubeValues[i, 1] * 100);
@@ -124,8 +128,7 @@ namespace WinChanceCalculator
                     }
                 }
             }
-
-            Random rand = new Random(System.DateTime.Now.Millisecond);
+            
             int x = rand.Next(100);
             return test[x];
         }
@@ -148,22 +151,26 @@ namespace WinChanceCalculator
             matrix.WriteMatrixToFile();
             WriteVectorToFile((double[])bVector.Clone());
 
-            DateTime startTime = DateTime.Now;
+            var stopwatch = new Stopwatch();
+            stopwatch.Reset();
+            stopwatch.Start();
             double[] gVector = matrix.GaussWithRowChoice((double[])bVector.Clone());
-            DateTime stopTime = DateTime.Now;
-            gaussTime = stopTime - startTime;
+            stopwatch.Stop();
+            gaussTime = stopwatch.Elapsed.TotalMilliseconds;
             resultVector[0] = gVector[0];
 
-            startTime = DateTime.Now;
-            double[] jVector = matrix.Jacobi((double[])bVector.Clone(),100);
-            stopTime = DateTime.Now;
-            jacobiTime = stopTime - startTime;
+            stopwatch.Reset();
+            stopwatch.Start();
+            double[] jVector = matrix.Jacobi((double[])bVector.Clone(), 100);
+            stopwatch.Stop();
+            jacobiTime = stopwatch.Elapsed.TotalMilliseconds;
             resultVector[1] = jVector[0];
-            startTime = DateTime.Now;
-            double[] sVector = matrix.Seidel((double[])bVector.Clone(),100);
-            stopTime = DateTime.Now;
+            stopwatch.Reset();
+            stopwatch.Start();
+            double[] sVector = matrix.Seidel((double[])bVector.Clone(), 100);
+            stopwatch.Stop();
             resultVector[2] = sVector[0];
-            seidelTime = stopTime - startTime;
+            seidelTime = stopwatch.Elapsed.TotalMilliseconds;
             return resultVector;
 
         }
@@ -195,13 +202,13 @@ namespace WinChanceCalculator
                     {
                         if (usedItemsForGivenStan[j].WhoWin() == 1)
                         {
-                            bVector[i] = (double) Stan.cubeValues[j,1];
+                            bVector[i] += (double) Stan.cubeValues[j,1];
                         }
                     }
                     else
                     {
                         int columnWitchHoldStan = FindIndexOfStanInElements(tableOfStans, numberOfColumns, usedItemsForGivenStan[j]);
-                        tableForMatrix[i, columnWitchHoldStan] = (double)Stan.cubeValues[j, 1];
+                        tableForMatrix[i, columnWitchHoldStan] += (double)Stan.cubeValues[j, 1];
                     }
                 }
             }
@@ -300,16 +307,33 @@ namespace WinChanceCalculator
 
         public static void WriteVectorToFile(double[] vector)
         {
-            for (int i = 0; i < vector.Length; i++)
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
             {
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+                for (int i = 0; i < vector.Length; i++)
                 {
                     file.WriteLine(String.Format("{0:N3}", vector[i]));
                 }
-            }
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
-            {
                 file.Write("*** *** *** *** *** ***\n");
+            }           
+        }
+
+        public static void WriteDataToFile(string name, double gauss, double jacobi, double seidel, double gaussTime, double jacobiTime, double seidelTime, double symulation, double symulationSpan)
+        {
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\"+name+".txt", true))
+            {
+                file.WriteLine("Data for N={0}, CubeSize={1} symetrical", N, 7);
+                file.WriteLine("Gauss Result: {0}", gauss);
+                file.WriteLine("Gauss Time: {0}", gaussTime);
+                file.WriteLine("");
+                file.WriteLine("Jacobi Result: {0}", jacobi);
+                file.WriteLine("Jacobi Time: {0}", jacobiTime);
+                file.WriteLine("");
+                file.WriteLine("Seidel Result: {0}", seidel);
+                file.WriteLine("Seidel Time: {0}", seidelTime);
+                file.WriteLine("");
+                file.WriteLine("Symulation Result: {0}", symulation);
+                file.WriteLine("Symulation Time: {0}", symulationTime);
+                file.WriteLine("");
             }
         }
 

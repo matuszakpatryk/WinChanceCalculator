@@ -85,8 +85,8 @@ namespace WinChanceCalculator
             double[] bVector1 = { 1, 1 };
             double[] bVector2 = { 30, 0, -10, 5 };
 
-            JacobiOperations.CountXVector(xVector1, 1, matrix1, bVector1);
-            JacobiOperations.CountXVector(xVector2, 2, matrix2, bVector2);
+            JacobiOperations.CountXVector(xVector1,  matrix1, bVector1);
+            JacobiOperations.CountXVector(xVector2,  matrix2, bVector2);
 
             double[] expect1 = { 1, 1 };
             double[] expect2 = { 6.825, 2, -1.025, 1 };

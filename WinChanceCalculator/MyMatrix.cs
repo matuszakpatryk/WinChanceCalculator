@@ -154,57 +154,31 @@ namespace WinChanceCalculator
             return xVector;
 
         }
+
+
+
+        public void WriteMatrixToFile()
+        {
             
-        
-
-        //public void WriteMatrixToFile(string name)
-        //{
-        //    if (!name.Contains("Result"))
-        //    {
-        //        for (int i = 0; i < rows; i++)
-        //        {
-        //            for (int j = 0; j < columns; j++)
-        //            {
-        //                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\" + name + ".txt", true))
-        //                {
-        //                    file.Write(String.Format("{0:N3}", matrix[i, j]));
-        //                    file.Write(" ");
-        //                }
-        //            }
-        //            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\" + name + ".txt", true))
-        //            {
-        //                file.Write("\n");
-        //            }
-        //        }
-        //        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\" + name + ".txt", true))
-        //        {
-        //            file.Write("*** *** *** *** *** ***\n");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < rows; i++)
-        //        {
-        //            for (int j = 0; j < columns; j++)
-        //            {
-        //                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\" + name + ".txt", true))
-        //                {
-        //                    file.Write(String.Format("{0:N3}", matrix[i, j]));
-        //                    file.Write(" ");
-        //                }
-        //            }
-        //            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\" + name + ".txt", true))
-        //            {
-        //                file.Write("\n");
-        //            }
-        //        }
-        //        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\" + name + ".txt", true))
-        //        {
-        //            file.Write("*** *** *** *** *** ***\n");
-        //        }
-        //    }
-
-        //}
-
+            for (int i = 0; i < numberOfRows; i++)
+            {
+                for (int j = 0; j < numberOfColumns; j++)
+                {
+                    using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+                    {
+                        file.Write(String.Format("{0:N3}", matrix[i, j]));
+                        file.Write(" ");
+                    }
+                }
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+                {
+                    file.Write("\n");
+                }
+            }
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+            {
+                file.Write("*** *** *** *** *** ***\n");
+            }                 
+        }
     }
 }

@@ -5,30 +5,39 @@ namespace WinChanceCalculator
     class Program
     {
         public static int size = 10;
-        public static int N = 2;
+        public static int N = 10;
+        public static TimeSpan gaussTime, jacobiTime, seidelTime, symulationTime;
 
         static void Main(string[] args)
         {
+            CleanFiles();
             double[] result = new double[3];
-            double[,] cubeValues = new double[,] { { -1, 1.0/3 }, { 0, 1.0/3 }, { 1, 1.0/3 } };
+            double[,] cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };    
+            //double[,] cubeValues = new double[,] { { -1, 1.0 / 3 }, { 0, 1.0 / 3 }, { 1, 1.0 / 3 } };
             double gaussSum = 0, jacobiSum = 0, seidelSum = 0;
             result = ComputeAll();
             gaussSum += result[0];
             jacobiSum += result[1];
             seidelSum += result[2];
             Console.WriteLine("Wyniki dla N={0}, Kostki o {1} scianach", N, Stan.cubeValues.Length / 2);
+            Console.WriteLine("");
             Console.WriteLine("Gauss result: {0}", gaussSum);
+            Console.WriteLine("Gauss Time: {0}", gaussTime);
+            Console.WriteLine("");
             Console.WriteLine("Jacobi result: {0}", jacobiSum);
+            Console.WriteLine("Jacobi Time: {0}", jacobiTime);
+            Console.WriteLine("");
             Console.WriteLine("Seidel result: {0}", seidelSum);
+            Console.WriteLine("Seidel Time: {0}", seidelTime);
+            Console.WriteLine("");
 
             double firstPlayerWins = 0, secondPlayerWins = 0;
+            DateTime startTime = DateTime.Now;
             for (int i = 0; i < 1000000; i++)
             {
                 Random rand = new Random();
                 int x = rand.Next(3) - 1;
-                //Console.WriteLine("x={0}", x);
                 int game = GameSymulation(2, -2, 3, cubeValues);
-                //Console.WriteLine("Game {0}: game={1}", i, game);
                 if (game == 1)
                 {
                     firstPlayerWins++;
@@ -38,8 +47,10 @@ namespace WinChanceCalculator
                     secondPlayerWins++;
                 }
             }
-
+            DateTime stopTime = DateTime.Now;
+            symulationTime = stopTime - startTime;
             Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", firstPlayerWins / 1000000);
+            Console.WriteLine("Symulation Time: {0}", symulationTime);
 
 
             Console.ReadKey();
@@ -89,33 +100,34 @@ namespace WinChanceCalculator
 
         public static int MyRandom (double[,] cubeValues)
         {
+            int[] test = new int[100];
+            int iterator = 0;
+            int secondIterator = 0;
+            for (int i = 0; i < cubeValues.Length / 2; i++)
+            {
+                if (i != (cubeValues.Length / 2) - 1)
+                {
+                    int temp = (int)(cubeValues[i, 1] * 100);
+                    for (int j = iterator; j < (int)(cubeValues[i, 1] * 100) + iterator; j++)
+                    {
+
+                        test[j] = (int)cubeValues[i, 0];
+                    }
+                    iterator += (int)(cubeValues[i, 1] * 100);
+                }
+                else
+                {
+                    int temp = (int)(cubeValues[i, 1] * 100);
+                    for (int j = iterator; j < 100; j++)
+                    {
+                        test[j] = (int)cubeValues[i, 0];
+                    }
+                }
+            }
+
             Random rand = new Random(System.DateTime.Now.Millisecond);
-            int x = rand.Next(3) -1;
-            return x;
-            //if ((x >= 0) && (x <= cubeValues[0, 1] * 100))
-            //{
-            //    return (int)cubeValues[0, 0];
-            //}
-            //else if ((x > cubeValues[0, 1] * 100) && (x <= cubeValues[1, 1] * 100))
-            //{
-            //    return (int)cubeValues[1, 0];
-            //}
-            //else
-            //{
-            //    return (int)cubeValues[2, 0];
-            //}
-            //    if (x == 0)
-            //    {
-            //        return -1;
-            //    }
-            //    else if ( x == 1 )
-            //    {
-            //        return 0;
-            //    }
-            //    else
-            //    {
-            //        return 1;
-            //    }
+            int x = rand.Next(100);
+            return test[x];
         }
 
         public static double[] ComputeAll()
@@ -133,13 +145,25 @@ namespace WinChanceCalculator
 
             MyMatrix matrix = new MyMatrix(numberOfColumns, numberOfColumns);
             matrix.ComplementMatrix(tableForMatrix);
+            matrix.WriteMatrixToFile();
+            WriteVectorToFile((double[])bVector.Clone());
 
+            DateTime startTime = DateTime.Now;
             double[] gVector = matrix.GaussWithRowChoice((double[])bVector.Clone());
+            DateTime stopTime = DateTime.Now;
+            gaussTime = stopTime - startTime;
             resultVector[0] = gVector[0];
+
+            startTime = DateTime.Now;
             double[] jVector = matrix.Jacobi((double[])bVector.Clone(),100);
+            stopTime = DateTime.Now;
+            jacobiTime = stopTime - startTime;
             resultVector[1] = jVector[0];
+            startTime = DateTime.Now;
             double[] sVector = matrix.Seidel((double[])bVector.Clone(),100);
+            stopTime = DateTime.Now;
             resultVector[2] = sVector[0];
+            seidelTime = stopTime - startTime;
             return resultVector;
 
         }
@@ -265,38 +289,29 @@ namespace WinChanceCalculator
             }
         }
 
-        
+
 
         //FILES
 
-        //public static void CleanFiles()
-        //{
-        //    int i = 1;
-        //    while (i <= 3)
-        //    {
-        //        System.IO.File.WriteAllText(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\DataRangeDouble" + i + ".txt", "");
-        //        System.IO.File.WriteAllText(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\DataRangeFloat" + i + ".txt", "");
-        //        System.IO.File.WriteAllText(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\DataRange\DataRangeFactorial" + i + ".txt", "");
-        //        i++;
-        //    }
-        //    System.IO.File.WriteAllText(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\(AxX)DataResultFactorial.txt", "");
+        public static void CleanFiles()
+        {
+            System.IO.File.WriteAllText(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", "");
+        }
 
-        //}
-
-        //public static void WriteVectorToFile<T>(T[] vector, string name)
-        //{
-        //    for (int i = 0; i < vector.Length; i++)
-        //    {
-        //        using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\" + name + ".txt", true))
-        //        {
-        //            file.WriteLine(String.Format("{0:N3}", vector[i]));
-        //        }
-        //    }
-        //    using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\pmatusza\Documents\MobaXterm\home\Studia\Algorytmy\Zad2\Zadanie2\Zadanie2\Data\Results\" + name + ".txt", true))
-        //    {
-        //        file.Write("*** *** *** *** *** ***\n");
-        //    }
-        //}
+        public static void WriteVectorToFile(double[] vector)
+        {
+            for (int i = 0; i < vector.Length; i++)
+            {
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+                {
+                    file.WriteLine(String.Format("{0:N3}", vector[i]));
+                }
+            }
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", true))
+            {
+                file.Write("*** *** *** *** *** ***\n");
+            }
+        }
 
 
     }

@@ -13,7 +13,7 @@ namespace WinChanceCalculator
         public int playerMove { get; set; }
         public Stan[] usedItems { get; set; }
         public static double[,] cubeValues { get; set; }
-        public static int numberOfCubeWalls = 3;
+        public static int numberOfCubeWalls = 7;
 
         public Stan(int firstPlayerField, int secondPlayerField, int playerMove, bool flag)
         {
@@ -21,7 +21,8 @@ namespace WinChanceCalculator
             this.secondPlayerField = secondPlayerField;
             this.playerMove = playerMove;
             usedItems = new Stan[numberOfCubeWalls];
-            cubeValues = new double[,] { { -1, 1.0/3 }, { 0, 1.0/3 }, { 1, 1.0/3 } };
+            cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };
+            //cubeValues = new double[,] { { -1, 1.0 / 3 }, { 0, 1.0 / 3 }, { 1, 1.0 / 3 } };
             if (flag == true)
             {
                 SetUsedItemTable();

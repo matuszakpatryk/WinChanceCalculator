@@ -6,8 +6,8 @@ namespace WinChanceCalculator
     class Program
     {
         public static int size = 1000000;
-        public static int N = 5;
-        public static double gaussTime, jacobiTime, seidelTime, symulationTime;
+        public static int N = 12;
+        public static double gaussTime, jacobiTime, seidelTime, symulationTime, buildMatrixTime;
 
         static void Main(string[] args)
         {
@@ -36,28 +36,28 @@ namespace WinChanceCalculator
             Console.WriteLine("");
 
             int firstPlayerWins = 0, secondPlayerWins = 0;
-            var stopwatch = new Stopwatch();
-            stopwatch.Reset();
-            stopwatch.Start();
-            for (int i = 0; i < size; i++)
-            {
-                int game = GameSymulation(N, -N, cubeValues.Length/2, cubeValues,rand);
-                if (game == 1)
-                {
-                    firstPlayerWins++;
-                }
-                else
-                {
-                    secondPlayerWins++;
-                }
-            }
-            stopwatch.Stop();
-            symulationTime = stopwatch.Elapsed.TotalMilliseconds;
-            Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", (double)firstPlayerWins / size);
-            Console.WriteLine("Symulation Time: {0}", symulationTime);
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Reset();
+            //stopwatch.Start();
+            //for (int i = 0; i < size; i++)
+            //{
+            //    int game = GameSymulation(N, -N, cubeValues.Length/2, cubeValues,rand);
+            //    if (game == 1)
+            //    {
+            //        firstPlayerWins++;
+            //    }
+            //    else
+            //    {
+            //        secondPlayerWins++;
+            //    }
+            //}
+            //stopwatch.Stop();
+            //symulationTime = stopwatch.Elapsed.TotalMilliseconds;
+            //Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", (double)firstPlayerWins / size);
+            //Console.WriteLine("Symulation Time: {0}", symulationTime);
 
 
-            WriteDataToFile("Result"+N, gaussSum, jacobiSum, seidelSum, gaussTime, jacobiTime, seidelTime, (double)firstPlayerWins / size, symulationTime);
+            WriteDataToFile("Result"+N, gaussSum, jacobiSum, seidelSum, gaussTime, jacobiTime, seidelTime, (double)firstPlayerWins / size, symulationTime, buildMatrixTime);
 
             Console.ReadKey();
         }
@@ -136,6 +136,10 @@ namespace WinChanceCalculator
         {
             Stan[] tableOfStans = CreateTableOfStans();
             int numberOfColumns = tableOfStans.Length;
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Reset();
+            stopwatch.Start();
             FillTableOfStans(tableOfStans);
 
             double[,] tableForMatrix = new double[numberOfColumns, numberOfColumns];
@@ -147,13 +151,16 @@ namespace WinChanceCalculator
 
             MyMatrix matrix = new MyMatrix(numberOfColumns, numberOfColumns);
             matrix.ComplementMatrix(tableForMatrix);
+
+            buildMatrixTime = stopwatch.Elapsed.TotalMilliseconds;
+
+
             matrix.WriteMatrixToFile();
             WriteVectorToFile((double[])bVector.Clone());
 
-            var stopwatch = new Stopwatch();
             stopwatch.Reset();
             stopwatch.Start();
-            double[] gVector = matrix.GaussWithRowChoice((double[])bVector.Clone());
+            double[] gVector = matrix.GaussWithRowChoice((double[])bVector.Clone(), true);
             stopwatch.Stop();
             gaussTime = stopwatch.Elapsed.TotalMilliseconds;
             resultVector[0] = gVector[0];
@@ -316,11 +323,12 @@ namespace WinChanceCalculator
             }           
         }
 
-        public static void WriteDataToFile(string name, double gauss, double jacobi, double seidel, double gaussTime, double jacobiTime, double seidelTime, double symulation, double symulationSpan)
+        public static void WriteDataToFile(string name, double gauss, double jacobi, double seidel, double gaussTime, double jacobiTime, double seidelTime, double symulation, double symulationSpan, double buildTime)
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\" + name+".txt", true))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\" + name + ".txt", true))
             {
                 file.WriteLine("Data for N={0}, CubeSize={1} symetrical", N, 7);
+                file.WriteLine("Build Matrix Time Result: {0}", buildMatrixTime);
                 file.WriteLine("Gauss Result: {0}", gauss);
                 file.WriteLine("Gauss Time: {0}", gaussTime);
                 file.WriteLine("");
@@ -330,8 +338,8 @@ namespace WinChanceCalculator
                 file.WriteLine("Seidel Result: {0}", seidel);
                 file.WriteLine("Seidel Time: {0}", seidelTime);
                 file.WriteLine("");
-                file.WriteLine("Symulation Result: {0}", symulation);
-                file.WriteLine("Symulation Time: {0}", symulationTime);
+                //file.WriteLine("Symulation Result: {0}", symulation);
+                //file.WriteLine("Symulation Time: {0}", symulationTime);
                 file.WriteLine("");
             }
         }

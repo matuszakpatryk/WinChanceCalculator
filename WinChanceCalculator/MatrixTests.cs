@@ -18,7 +18,7 @@ namespace WinChanceCalculator
             
             MyMatrix doubleMatrix = new MyMatrix(4, 4);
             doubleMatrix.ComplementMatrix(table);
-            double[] xVector = doubleMatrix.GaussWithRowChoice(bVector);
+            double[] xVector = doubleMatrix.GaussWithRowChoice(bVector, true);
             double[] expect = {-1, 2, 3, -2};
 
             Assert.Equal(expect, xVector);

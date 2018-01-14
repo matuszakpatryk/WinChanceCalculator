@@ -57,15 +57,15 @@ namespace WinChanceCalculator
             }
         }
 
-        public double[] GaussWithRowChoice(double[] bVector)
+        public double[] GaussWithRowChoice(double[] bVector, bool optymilization)
         {
-            bVector = MakeRowEchelonMatrixWithRowChoice(bVector);
+            bVector = MakeRowEchelonMatrixWithRowChoice(bVector, optymilization);
             double[] xVector = GaussOperations.CountXVector(bVector, numberOfColumns, matrix);
             SetDefaultMatrix();
             return xVector;
         }
 
-        private double[] MakeRowEchelonMatrixWithRowChoice(double[] bVector)
+        private double[] MakeRowEchelonMatrixWithRowChoice(double[] bVector, bool optimalization)
         {
             for (int k = 0; k < numberOfColumns; k++)
             {
@@ -79,14 +79,19 @@ namespace WinChanceCalculator
 
                 for (int i = k; i < numberOfRows - 1; i++)
                 {
-                    double numberForMultiply = (dynamic)matrix[i + 1, k] / matrix[k, k];
+                    double numberForMultiply = matrix[i + 1, k] / matrix[k, k];
+
+                    if (CheckIsDoubleZero(numberForMultiply) && optimalization)
+                    {
+                        continue;
+                    }
 
                     for (int j = k; j < numberOfColumns; j++)
                     {
-                        matrix[i + 1, j] -= ((dynamic)matrix[k, j] * numberForMultiply);
+                        matrix[i + 1, j] -= (matrix[k, j] * numberForMultiply);
                     }
 
-                    bVector[i + 1] -= ((dynamic)bVector[k] * numberForMultiply);
+                    bVector[i + 1] -= (bVector[k] * numberForMultiply);
                 }
 
             }
@@ -99,7 +104,7 @@ namespace WinChanceCalculator
             int firstRowUnderDiagonal = columnNumber + 1;
             for (int i = firstRowUnderDiagonal; i < numberOfRows; i++)
             {
-                if ((dynamic)matrix[rowNumberWithMaxNumberInColumn, columnNumber] < matrix[i, columnNumber])
+                if (matrix[rowNumberWithMaxNumberInColumn, columnNumber] < matrix[i, columnNumber])
                 {
                     rowNumberWithMaxNumberInColumn = i;
                 }
@@ -179,6 +184,14 @@ namespace WinChanceCalculator
             }                 
         }
 
-    
+        private static bool CheckIsDoubleZero(double number)
+        {
+            if (Math.Abs(number) <= 0.0000000001)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

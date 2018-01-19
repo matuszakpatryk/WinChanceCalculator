@@ -6,60 +6,19 @@ namespace WinChanceCalculator
     class Program
     {
         public static int size = 1000000;
-        public static int N = 12;
-        public static double gaussTime, jacobiTime, seidelTime, symulationTime, buildMatrixTime;
+        public static int N = 15;
+        public static double seidelTime, buildMatrixTime;
 
         static void Main(string[] args)
         {
             Random rand = new Random();
             CleanFiles();
             double[] result = new double[3];
-            //double[,] cubeValues = new double[,] { { 0, 0.05 }, { 1, 0.15 }, { 2, 0.20 }, { 3, 0.10 }, { -3, 0.25 }, { -2, 0.13 }, { -1, 0.12 } };    
             double[,] cubeValues = new double[,] { { -3, 1.0 / 7 }, { -2, 1.0 / 7 }, { -1, 1.0 / 7 }, { 0, 1.0 / 7 }, { 1, 1.0 / 7 }, { 2, 1.0 / 7 }, { 3, 1.0 / 7 } };
-            //double[,] cubeValues = new double[,] { { -1, 1.0 / 3 }, { 0, 1.0 / 3 }, { 1, 1.0 / 3 } };
-            //double[,] cubeValues = new double[,] { { -2, 2.0 / 5 }, { 0, 1.0 / 5 }, { 1, 1.0 / 5 }, { 3, 1.0 / 5 } };
             double gaussSum = 0, jacobiSum = 0, seidelSum = 0;
             result = ComputeAll();
-            gaussSum += result[0]; 
-            jacobiSum += result[1];
-            seidelSum += result[2];
-            Console.WriteLine("Wyniki dla N={0}, Kostki o {1} scianach", N, Stan.cubeValues.Length / 2);
-            Console.WriteLine("");
-            Console.WriteLine("Gauss result: {0}", gaussSum);
-            Console.WriteLine("Gauss Time: {0}", gaussTime);
-            Console.WriteLine("");
-            Console.WriteLine("Jacobi result: {0}", jacobiSum);
-            Console.WriteLine("Jacobi Time: {0}", jacobiTime);
-            Console.WriteLine("");
-            Console.WriteLine("Seidel result: {0}", seidelSum);
-            Console.WriteLine("Seidel Time: {0}", seidelTime);
-            Console.WriteLine("");
 
             int firstPlayerWins = 0, secondPlayerWins = 0;
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Reset();
-            //stopwatch.Start();
-            //for (int i = 0; i < size; i++)
-            //{
-            //    int game = GameSymulation(N, -N, cubeValues.Length/2, cubeValues,rand);
-            //    if (game == 1)
-            //    {
-            //        firstPlayerWins++;
-            //    }
-            //    else
-            //    {
-            //        secondPlayerWins++;
-            //    }
-            //}
-            //stopwatch.Stop();
-            //symulationTime = stopwatch.Elapsed.TotalMilliseconds;
-            //Console.WriteLine("Prawdopodobienstwo wygrania gracza 1: {0}", (double)firstPlayerWins / size);
-            //Console.WriteLine("Symulation Time: {0}", symulationTime);
-
-
-            WriteDataToFile("Result"+N, gaussSum, jacobiSum, seidelSum, gaussTime, jacobiTime, seidelTime, (double)firstPlayerWins / size, symulationTime, buildMatrixTime);
-
-            Console.ReadKey();
         }
 
         public static int GameSymulation(int firstPlayerStartField, int secondPlayerStartField, int cubeSize, double[,] cubeValues, Random rand)
@@ -144,33 +103,24 @@ namespace WinChanceCalculator
 
             double[,] tableForMatrix = new double[numberOfColumns, numberOfColumns];
             double[] bVector = new double[numberOfColumns];
-            double[] resultVector = new double[3]; 
+            double[] resultVector = new double[3];
+
+            double[,] matrixPoints = new double[numberOfColumns * Stan.numberOfCubeWalls + numberOfColumns, 3];
+            double[,] vectorPoints = new double[numberOfColumns, 3];
 
             FillTableForMatrixAndBVectorWithZeros(tableForMatrix, bVector, numberOfColumns);
-            FillTableForMatrixWithStans(tableOfStans, numberOfColumns, tableForMatrix, bVector);
+            FillTableForMatrixWithStans(tableOfStans, numberOfColumns, tableForMatrix, bVector, matrixPoints, vectorPoints);
 
             MyMatrix matrix = new MyMatrix(numberOfColumns, numberOfColumns);
             matrix.ComplementMatrix(tableForMatrix);
 
             buildMatrixTime = stopwatch.Elapsed.TotalMilliseconds;
 
-
             matrix.WriteMatrixToFile();
             WriteVectorToFile((double[])bVector.Clone());
+            MyMatrix.PrintVector(bVector);
+            WriteVectorWithoutZero((double[])bVector.Clone());
 
-            stopwatch.Reset();
-            stopwatch.Start();
-            double[] gVector = matrix.GaussWithRowChoice((double[])bVector.Clone(), true);
-            stopwatch.Stop();
-            gaussTime = stopwatch.Elapsed.TotalMilliseconds;
-            resultVector[0] = gVector[0];
-
-            stopwatch.Reset();
-            stopwatch.Start();
-            double[] jVector = matrix.Jacobi((double[])bVector.Clone(), 100);
-            stopwatch.Stop();
-            jacobiTime = stopwatch.Elapsed.TotalMilliseconds;
-            resultVector[1] = jVector[0];
             stopwatch.Reset();
             stopwatch.Start();
             double[] sVector = matrix.Seidel((double[])bVector.Clone(), 100);
@@ -196,10 +146,15 @@ namespace WinChanceCalculator
         }
 
         public static void FillTableForMatrixWithStans(Stan[] tableOfStans, int numberOfColumns,
-            double[,] tableForMatrix, double[] bVector)
+            double[,] tableForMatrix, double[] bVector, double[,] matrixPoints, double[,] vectorPoints)
         {
+            int z = 0;
             for (int i = 0; i < numberOfColumns; i++)
             {
+                matrixPoints[z, 0] = i;
+                matrixPoints[z, 1] = i;
+                matrixPoints[z, 2] = 1;
+                z++;
                 for (int j = 0; j < Stan.numberOfCubeWalls; j++)
                 {
                     Stan[] usedItemsForGivenStan = tableOfStans[i].usedItems;
@@ -208,15 +163,40 @@ namespace WinChanceCalculator
                     {
                         if (usedItemsForGivenStan[j].WhoWin() == 1)
                         {
-                            bVector[i] += (double) Stan.cubeValues[j,1];
+                            bVector[i] += (double)Stan.cubeValues[j, 1];
                         }
                     }
                     else
                     {
                         int columnWitchHoldStan = FindIndexOfStanInElements(tableOfStans, numberOfColumns, usedItemsForGivenStan[j]);
                         tableForMatrix[i, columnWitchHoldStan] += (double)Stan.cubeValues[j, 1];
+
+                        bool isColumnRepeat = false;
+                        int repeatedColumn = -1;
+                        for (int k = 0; k < z; k++)
+                        {
+                            if (Math.Abs(matrixPoints[k, 0] - i) < 0.0001 && Math.Abs(matrixPoints[k, 1] - columnWitchHoldStan) < 0.00001)
+                            {
+                                isColumnRepeat = true;
+                                repeatedColumn = k;
+                            }
+                        }
+
+                        if (!isColumnRepeat)
+                        {
+                            matrixPoints[z, 0] = i;
+                            matrixPoints[z, 1] = columnWitchHoldStan;
+                            matrixPoints[z, 2] = (double)Stan.cubeValues[j, 1];
+                            z++;
+                        }
+                        else
+                        {
+                            matrixPoints[repeatedColumn, 2] += (double)Stan.cubeValues[j, 1];
+                        }
                     }
                 }
+
+
             }
         }
 
@@ -309,6 +289,8 @@ namespace WinChanceCalculator
         public static void CleanFiles()
         {
             System.IO.File.WriteAllText(@"C:\Users\Patryk\Desktop\Data\DataRange.txt", "");
+            System.IO.File.WriteAllText(@"C:\Users\Patryk\Desktop\Data\DataRangeNew.txt", "");
+            System.IO.File.WriteAllText(@"C:\Users\Patryk\Desktop\Data\VectorWithoutZeros.txt", "");
         }
 
         public static void WriteVectorToFile(double[] vector)
@@ -341,6 +323,40 @@ namespace WinChanceCalculator
                 //file.WriteLine("Symulation Result: {0}", symulation);
                 //file.WriteLine("Symulation Time: {0}", symulationTime);
                 file.WriteLine("");
+            }
+        }
+
+        public static void WriteVectorWithoutZero(double[] vector)
+        {
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\VectorWithoutZeros.txt", true))
+            {
+                for (int i = 0; i < vector.Length; i++)
+                {
+                    if (!MyMatrix.CheckIsDoubleZero(vector[i]))
+                    {
+                        file.WriteLine(String.Format("{0} {1:N16}", i, vector[i]));
+                    }
+
+                }
+            }
+        }
+
+        private static void WriteMatixWithoutZerosToFile(double[,] test)
+        {
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(@"C:\Users\Patryk\Desktop\Data\DataRangeNew.txt", true))
+            {
+
+                for (int i = 0; i < test.GetLength(0); i++)
+                {
+                    if (!MyMatrix.CheckIsDoubleZero(test[i, 2]))
+                    {
+                        file.Write(String.Format("{0} {1} {2:N16}", test[i, 0], test[i, 1], test[i, 2]));
+                        file.Write("\n");
+                    }
+
+                }
             }
         }
 

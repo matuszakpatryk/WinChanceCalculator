@@ -184,9 +184,9 @@ namespace WinChanceCalculator
             }                 
         }
 
-        private static bool CheckIsDoubleZero(double number)
+        public static bool CheckIsDoubleZero(double number)
         {
-            if (Math.Abs(number) <= 0.0000000001)
+            if (Math.Abs(number) <= 0.000000000000001)
             {
                 return true;
             }
